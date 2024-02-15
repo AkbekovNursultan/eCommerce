@@ -8,7 +8,7 @@ import kg.alatoo.eCommerce.entity.User;
 public interface AuthService {
     void register(UserRegisterRequest userRegisterRequest);
 
-    User getUserFromToken(String token);
-
     UserLoginResponse login(UserLoginRequest userLoginRequest);
+
+    User getUserFromToken(String token);
 }

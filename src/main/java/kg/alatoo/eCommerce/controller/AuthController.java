@@ -1,6 +1,7 @@
 package kg.alatoo.eCommerce.controller;
 
 import kg.alatoo.eCommerce.dto.UserLoginRequest;
+import kg.alatoo.eCommerce.dto.UserLoginResponse;
 import kg.alatoo.eCommerce.dto.UserRegisterRequest;
 import kg.alatoo.eCommerce.service.AuthService;
 import lombok.AllArgsConstructor;
@@ -18,12 +19,11 @@ public class AuthController {
     @PostMapping("/register")
     public String register(@RequestBody UserRegisterRequest userRegisterRequest){
         authService.register(userRegisterRequest);
-        return "Done";
-    }
-    @PostMapping("/login")
-    public String login(@RequestBody UserLoginRequest userLoginRequest){
-        authService.login(userLoginRequest);
-        return "Done";
+        return "User added successfully!";
     }
 
+    @PostMapping("/login")
+    public UserLoginResponse login(@RequestBody UserLoginRequest userLoginRequest){
+        return authService.login(userLoginRequest);
+    }
 }

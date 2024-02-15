@@ -34,13 +34,12 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public void register(UserRegisterRequest userRegisterRequest) {
         if(userRepository.findByUsername(userRegisterRequest.getUsername()).isPresent())
-            throw new BadCredentialsException("uf");
+            throw new BadCredentialsException("Already exists");
         User user = new User();
         user.setUsername(userRegisterRequest.getUsername());
-        user.setPassword(userRegisterRequest.getPassword());
-        if(!containsRole(userRegisterRequest.getRole()))
-            throw new BadCredentialsException("no");
-        user.setRole(Role.valueOf(userRegisterRequest.getRole().toUpperCase()));
+        user.setPassword(passwordEncoder.encode(userRegisterRequest.getPassword()));
+        user.setRole(Role.CUSTOMER);
+        user.setEmail(userRegisterRequest.getEmail());
         userRepository.save(user);
     }
     @Override
