@@ -1,8 +1,8 @@
 package kg.alatoo.eCommerce.service;
 
-import kg.alatoo.eCommerce.dto.UserLoginRequest;
-import kg.alatoo.eCommerce.dto.UserLoginResponse;
-import kg.alatoo.eCommerce.dto.UserRegisterRequest;
+import kg.alatoo.eCommerce.dto.user.UserLoginRequest;
+import kg.alatoo.eCommerce.dto.user.UserLoginResponse;
+import kg.alatoo.eCommerce.dto.user.UserRegisterRequest;
 import kg.alatoo.eCommerce.entity.User;
 
 public interface AuthService {

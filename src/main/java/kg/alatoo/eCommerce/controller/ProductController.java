@@ -14,7 +14,7 @@ public class ProductController {
     @PostMapping("/add_category")
     public String addCategory(@RequestHeader("/authorization") String token, @RequestBody CategoryRequest categoryRequest){
         productService.addNewCategory(categoryRequest, token);
-        return "s";
+        return "Category successfully added.";
     }
     @PostMapping("/add_new_product")
     public String addProduct(@RequestHeader("/authorization") String token, @RequestBody ProductAddRequest productAddRequest){

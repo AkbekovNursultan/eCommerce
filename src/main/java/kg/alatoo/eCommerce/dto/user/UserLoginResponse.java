@@ -1,4 +1,4 @@
-package kg.alatoo.eCommerce.dto;
+package kg.alatoo.eCommerce.dto.user;
 
 import lombok.Getter;
 import lombok.Setter;

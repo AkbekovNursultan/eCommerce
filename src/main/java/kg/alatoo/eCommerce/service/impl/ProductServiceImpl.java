@@ -37,9 +37,14 @@ public class ProductServiceImpl implements ProductService {
         product.setCode(productAddRequest.getCode());
         Optional<Category> category = categoryRepository.findByName(productAddRequest.getCategory());
         if(category.isEmpty())
-            throw new NotFoundException("404");
+            throw new NotFoundException(productAddRequest.getCategory() + "- doesn't exist.");
         product.setPrice(productAddRequest.getPrice());
         product.setDescription(productAddRequest.getDescription());
+
+        product.setColors(productAddRequest.getColors());
+        product.setTags(productAddRequest.getTags());
+        product.setSizes(productAddRequest.getSizes());
+
         List<Product> products = new ArrayList<>();
         if(category.get().getProducts().isEmpty())
             products = category.get().getProducts();
@@ -56,4 +61,6 @@ public class ProductServiceImpl implements ProductService {
         category.setName(categoryRequest.getName());
         categoryRepository.save(category);
     }
+
+
 }
