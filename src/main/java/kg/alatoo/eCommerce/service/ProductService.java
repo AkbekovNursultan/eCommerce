@@ -1,12 +1,13 @@
 package kg.alatoo.eCommerce.service;
 
 import kg.alatoo.eCommerce.dto.category.CategoryRequest;
-import kg.alatoo.eCommerce.dto.product.ProductAddRequest;
-import org.springframework.stereotype.Service;
+import kg.alatoo.eCommerce.dto.product.ProductRequest;
 
 
 public interface ProductService {
-    void addNewProduct(ProductAddRequest productAddRequest, String token);
+    void addNewProduct(ProductRequest productRequest, String token);
 
     void addNewCategory(CategoryRequest categoryRequest, String token);
+
+    void update(String token, Long productId, ProductRequest productRequest);
 }

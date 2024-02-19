@@ -1,7 +1,7 @@
 package kg.alatoo.eCommerce.controller;
 
 import kg.alatoo.eCommerce.dto.category.CategoryRequest;
-import kg.alatoo.eCommerce.dto.product.ProductAddRequest;
+import kg.alatoo.eCommerce.dto.product.ProductRequest;
 import kg.alatoo.eCommerce.service.ProductService;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -17,9 +17,14 @@ public class ProductController {
         return "Category successfully added.";
     }
     @PostMapping("/add_new_product")
-    public String addProduct(@RequestHeader("/authorization") String token, @RequestBody ProductAddRequest productAddRequest){
-        productService.addNewProduct(productAddRequest, token);
+    public String addProduct(@RequestHeader("/authorization") String token, @RequestBody ProductRequest productRequest){
+        productService.addNewProduct(productRequest, token);
         return "Product was added.";
+    }
+    @PutMapping("/update/{productId}")
+    public String updateProduct(@RequestHeader("/authorization") String token, @PathVariable Long productId, @RequestBody ProductRequest productRequest){
+        productService.update(token, productId, productRequest);
+        return "Done";
     }
 
 }

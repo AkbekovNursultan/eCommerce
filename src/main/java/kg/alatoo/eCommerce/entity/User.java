@@ -21,16 +21,17 @@ public class User implements UserDetails {
     private String username;
     private String email;
     private String password;
-    private Role role;
-
     private String firstName;
     private String lastName;
-    private String country;
-    private String address;
-    private String city;
-    private String zipCode;
-    private String phone;
-    private String additionalInfo;
+    private Role role;
+
+
+
+    @OneToOne(cascade = CascadeType.ALL)
+    private Worker worker;
+
+    @OneToOne(cascade = CascadeType.ALL)
+    private Customer customer;
 
     @OneToMany
     private List<Product> productList;

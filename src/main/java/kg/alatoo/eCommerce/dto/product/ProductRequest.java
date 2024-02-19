@@ -1,7 +1,5 @@
 package kg.alatoo.eCommerce.dto.product;
 
-import jakarta.persistence.ManyToOne;
-import kg.alatoo.eCommerce.entity.Category;
 import kg.alatoo.eCommerce.entity.User;
 import kg.alatoo.eCommerce.enums.Color;
 import kg.alatoo.eCommerce.enums.Size;
@@ -13,7 +11,7 @@ import java.util.List;
 
 @Getter
 @Setter
-public class ProductAddRequest {
+public class ProductRequest {
     private String title;
     private Integer price;
     private List<Size> sizes;

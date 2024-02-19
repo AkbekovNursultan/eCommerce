@@ -2,7 +2,10 @@ package kg.alatoo.eCommerce.service.impl;
 
 import kg.alatoo.eCommerce.dto.user.ChangePasswordRequest;
 import kg.alatoo.eCommerce.dto.user.UserInfoResponse;
+import kg.alatoo.eCommerce.entity.Customer;
 import kg.alatoo.eCommerce.entity.User;
+import kg.alatoo.eCommerce.entity.Worker;
+import kg.alatoo.eCommerce.enums.Role;
 import kg.alatoo.eCommerce.exception.BadRequestException;
 import kg.alatoo.eCommerce.mapper.UserMapper;
 import kg.alatoo.eCommerce.repository.UserRepository;
@@ -40,25 +43,31 @@ public class UserServiceImpl implements UserService {
             else
                 throw new BadCredentialsException("This username already in use!");
         }
-
-        if(request.getEmail() != null)
-            user.setEmail(request.getEmail());
-        if(request.getCity() != null)
-            user.setCity(request.getCity());
-        if(request.getCountry() != null)
-            user.setCountry(request.getCountry());
-        if(request.getPhone() != null)
-            user.setPhone(request.getPhone());
-        if(request.getFirstName() != null)
-            user.setFirstName(request.getFirstName());
-        if(request.getLastName() != null)
-            user.setLastName(request.getLastName());
-        if(request.getZipCode() != null)
-            user.setZipCode(request.getZipCode());
-        if(request.getAddress() != null)
-            user.setAddress(request.getAddress());
-        if(request.getAdditionalInfo() != null)
-            user.setAdditionalInfo(request.getAdditionalInfo());
+        if(user.getRole().equals(Role.CUSTOMER)) {
+            Customer customer = user.getCustomer();
+            if (request.getEmail() != null)
+                user.setEmail(request.getEmail());
+            if (request.getCity() != null)
+                customer.setCity(request.getCity());
+            if (request.getCountry() != null)
+                customer.setCountry(request.getCountry());
+            if (request.getPhone() != null)
+                customer.setPhone(request.getPhone());
+            if (request.getFirstName() != null)
+                user.setFirstName(request.getFirstName());
+            if (request.getLastName() != null)
+                user.setLastName(request.getLastName());
+            if (request.getZipCode() != null)
+                customer.setZipCode(request.getZipCode());
+            if (request.getAddress() != null)
+                customer.setAddress(request.getAddress());
+            if (request.getAdditionalInfo() != null)
+                customer.setAdditionalInfo(request.getAdditionalInfo());
+            userRepository.save(user);
+        }
+        else {
+            
+        }
     }
 
     @Override
