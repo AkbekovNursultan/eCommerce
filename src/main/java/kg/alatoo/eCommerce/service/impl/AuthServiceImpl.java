@@ -75,10 +75,7 @@ public class AuthServiceImpl implements AuthService {
 
     private UserLoginResponse convertToResponse(Optional<User> user) {
         UserLoginResponse loginResponse = new UserLoginResponse();
-        loginResponse.setUsername(user.get().getUsername());
-        loginResponse.setId(user.get().getId());
-        if (user.get().getRole().equals(Role.CUSTOMER))
-            loginResponse.setUsername(user.get().getUsername());
+
         Map<String, Object> extraClaims = new HashMap<>();
 
         String token = jwtService.generateToken(extraClaims, user.get());

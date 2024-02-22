@@ -19,7 +19,7 @@ public class ApplicationConfig {
     private final UserRepository repository;
     @Bean
     public UserDetailsService userDetailsService(){
-        return username -> (UserDetails) repository.findByUsername(username)
+        return username -> repository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("404"));
     }
     @Bean
