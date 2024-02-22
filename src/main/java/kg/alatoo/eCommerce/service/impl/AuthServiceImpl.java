@@ -4,6 +4,7 @@ import kg.alatoo.eCommerce.config.JwtService;
 import kg.alatoo.eCommerce.dto.user.UserLoginRequest;
 import kg.alatoo.eCommerce.dto.user.UserLoginResponse;
 import kg.alatoo.eCommerce.dto.user.UserRegisterRequest;
+import kg.alatoo.eCommerce.entity.Customer;
 import kg.alatoo.eCommerce.entity.User;
 import kg.alatoo.eCommerce.enums.Role;
 import kg.alatoo.eCommerce.repository.UserRepository;
@@ -42,6 +43,18 @@ public class AuthServiceImpl implements AuthService {
             throw new BadCredentialsException("Unknown role.");
         user.setRole(Role.valueOf(userRegisterRequest.getRole()));
         user.setEmail(userRegisterRequest.getEmail());
+        if(user.getRole().equals(Role.CUSTOMER)){
+            Customer customer = new Customer();
+            customer.setCountry(userRegisterRequest.getCountry());
+            customer.setCity(userRegisterRequest.getCity());
+            customer.setAddress(userRegisterRequest.getAddress());
+            customer.setAdditionalInfo(userRegisterRequest.getAdditionalInfo());
+            customer.setPhone(userRegisterRequest.getPhone());
+            customer.setId(user.getId());
+            customer.setZipCode(userRegisterRequest.getZipCode());
+            customer.setUser(user);
+            user.setCustomer(customer);
+        }
         userRepository.save(user);
     }
     @Override
