@@ -4,8 +4,10 @@ import kg.alatoo.eCommerce.config.JwtService;
 import kg.alatoo.eCommerce.dto.user.UserLoginRequest;
 import kg.alatoo.eCommerce.dto.user.UserLoginResponse;
 import kg.alatoo.eCommerce.dto.user.UserRegisterRequest;
+import kg.alatoo.eCommerce.entity.Cart;
 import kg.alatoo.eCommerce.entity.Customer;
 import kg.alatoo.eCommerce.entity.User;
+import kg.alatoo.eCommerce.entity.Worker;
 import kg.alatoo.eCommerce.enums.Role;
 import kg.alatoo.eCommerce.repository.UserRepository;
 import kg.alatoo.eCommerce.service.AuthService;
@@ -53,7 +55,14 @@ public class AuthServiceImpl implements AuthService {
             customer.setId(user.getId());
             customer.setZipCode(userRegisterRequest.getZipCode());
             customer.setUser(user);
+            customer.setBalance(10000);
+            Cart cart = new Cart();
+            cart.setCustomer(customer);
             user.setCustomer(customer);
+        } else if (user.getRole().equals(Role.WORKER)) {
+            Worker worker = new Worker();
+            worker.setUser(user);
+            user.setWorker(worker);
         }
         userRepository.save(user);
     }

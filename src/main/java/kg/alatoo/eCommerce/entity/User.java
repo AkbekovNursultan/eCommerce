@@ -22,15 +22,10 @@ public class User implements UserDetails {
     private String username;
     private String email;
     private String password;
-<<<<<<< HEAD
     @Enumerated(EnumType.STRING)
     private Role role;
-
-=======
->>>>>>> 3088cad1507340b67274ac74bf7208e4ef8d817f
     private String firstName;
     private String lastName;
-    private Role role;
 
 
 

@@ -9,6 +9,7 @@ import lombok.Setter;
 @Setter
 public class Customer {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String country;
     private String address;
@@ -16,6 +17,9 @@ public class Customer {
     private String zipCode;
     private String phone;
     private String additionalInfo;
+    private Integer balance;
     @OneToOne(mappedBy = "customer")
     private User user;
+    @OneToOne(cascade = CascadeType.ALL)
+    private Cart cart;
 }

@@ -13,18 +13,18 @@ public class UserController {
     private UserService userService;
 
     @GetMapping("/info")
-    public UserInfoResponse profile(@RequestHeader("/authorization") String token){
+    public UserInfoResponse profile(@RequestHeader("Authorization-Bearer") String token){
         return userService.userInfo(token);
     }
 
     @PutMapping("/update")
-    public String update(@RequestHeader("/authorization") String token, @RequestBody UserInfoResponse request){
+    public String update(@RequestHeader("Authorization-Bearer") String token, @RequestBody UserInfoResponse request){
         userService.update(token, request);
         return "Profile updated.";
     }
 
     @PutMapping("/change_password")
-    public String changePassword(@RequestHeader("/authorization") String token, @RequestBody ChangePasswordRequest request){
+    public String changePassword(@RequestHeader("Authorization-Bearer") String token, @RequestBody ChangePasswordRequest request){
         userService.changePassword(token, request);
         return "Password successfully changed.";
     }

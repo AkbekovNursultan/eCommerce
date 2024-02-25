@@ -2,12 +2,13 @@ package kg.alatoo.eCommerce.service.impl;
 
 import kg.alatoo.eCommerce.dto.category.CategoryRequest;
 import kg.alatoo.eCommerce.dto.product.ProductRequest;
-import kg.alatoo.eCommerce.entity.Category;
-import kg.alatoo.eCommerce.entity.Product;
-import kg.alatoo.eCommerce.entity.User;
+import kg.alatoo.eCommerce.dto.product.ProductResponse;
+import kg.alatoo.eCommerce.entity.*;
 import kg.alatoo.eCommerce.enums.Role;
 import kg.alatoo.eCommerce.exception.BadRequestException;
 import kg.alatoo.eCommerce.exception.BlockedException;
+import kg.alatoo.eCommerce.mapper.ProductMapper;
+import kg.alatoo.eCommerce.repository.CartRepository;
 import kg.alatoo.eCommerce.repository.CategoryRepository;
 import kg.alatoo.eCommerce.repository.ProductRepository;
 import kg.alatoo.eCommerce.repository.UserRepository;
@@ -29,6 +30,8 @@ public class ProductServiceImpl implements ProductService {
     private final ProductRepository productRepository;
     private final UserRepository userRepository;
     private final AuthService authService;
+    private final ProductMapper productMapper;
+    private final CartRepository cartRepository;
     @Override
     public void addNewProduct(ProductRequest productRequest, String token) {
         User user = authService.getUserFromToken(token);
@@ -39,13 +42,16 @@ public class ProductServiceImpl implements ProductService {
         product.setCode(productRequest.getCode());
         Optional<Category> category = categoryRepository.findByName(productRequest.getCategory());
         if(category.isEmpty())
-            throw new NotFoundException(productRequest.getCategory() + "- doesn't exist.");
+            throw new NotFoundException("The category '" + productRequest.getCategory() + "' doesn't exist.");
         product.setPrice(productRequest.getPrice());
         product.setDescription(productRequest.getDescription());
         product.setColors(productRequest.getColors());
         product.setTags(productRequest.getTags());
         product.setSizes(productRequest.getSizes());
         product.setWorker(user.getWorker());
+        product.setQuantity(productRequest.getQuantity());
+        if(product.getQuantity() < 0)
+            product.setQuantity(0);
         List<Product> products = new ArrayList<>();
         if(category.get().getProducts().isEmpty())
             products = category.get().getProducts();
@@ -57,6 +63,9 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public void addNewCategory(CategoryRequest categoryRequest, String token) {
+        User user = authService.getUserFromToken(token);
+        if(!user.getRole().equals(Role.WORKER))
+            throw new BlockedException("You have no permission.");
         Category category = new Category();
         if(categoryRepository.findByName(categoryRequest.getName()).isEmpty())
             throw new BadCredentialsException("Already exists.");
@@ -96,6 +105,44 @@ public class ProductServiceImpl implements ProductService {
         if(request.getDescription() != null)
             product.get().setDescription(request.getDescription());
         productRepository.save(product.get());
+    }
+
+    @Override
+    public void restock(String token, Long productId, Integer addedProducts) {
+        User user = authService.getUserFromToken(token);
+        if(!user.getAuthorities().equals(Role.WORKER))
+            throw new BadRequestException("You have no permission");
+        Optional<Product> product = productRepository.findById(productId);
+        if(product.isEmpty())
+            throw new NotFoundException("Invalid ProductId");
+        product.get().setQuantity(product.get().getQuantity() + addedProducts);
+        productRepository.save(product.get());
+    }
+
+    @Override
+    public List<ProductResponse> getAll() {
+        List<Product> all = productRepository.findAll();
+        return productMapper.toDtoS(all);
+    }
+
+    @Override
+    public void buy(String token, Long productId, Integer quantity) {
+        User user = authService.getUserFromToken(token);
+        Customer customer = user.getCustomer();
+        if(!user.getRole().equals(Role.CUSTOMER))
+            throw new BadRequestException("You aren't allowed to do this.");
+        Optional<Product> product = productRepository.findById(productId);
+        if(product.isEmpty())
+            throw new NotFoundException("Product with Id:" +productId+ " doesn't exist.");
+        Cart cart = cartRepository.findByCustomerId(user.getCustomer().getId());
+        if(customer.getBalance() < cart.getPrice() + product.get().getPrice())
+            throw new BadRequestException("You don't have enough money on your balance. \n(poor bastard)");
+        customer.setBalance(user.getCustomer().getBalance() - product.get().getPrice());
+        List<Product> list = cart.getProductList();
+        list.add(product.get());
+        cart.setProductList(list);
+        cartRepository.saveAndFlush(cart);
+        userRepository.saveAndFlush(user);
     }
 
 

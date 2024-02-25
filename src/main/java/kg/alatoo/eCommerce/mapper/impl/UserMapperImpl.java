@@ -16,12 +16,12 @@ public class UserMapperImpl implements UserMapper {
         response.setProductList(user.getProductList());
         response.setFirstName(user.getFirstName());
         response.setLastName(user.getLastName());
-        response.setCountry(user.getCountry());
-        response.setAddress(user.getAddress());
-        response.setCity(user.getCity());
-        response.setZipCode(user.getZipCode());
-        response.setPhone(user.getPhone());
-        response.setAdditionalInfo(user.getAdditionalInfo());
+        response.setCountry(user.getCustomer().getCountry());
+        response.setAddress(user.getCustomer().getAddress());
+        response.setCity(user.getCustomer().getCity());
+        response.setZipCode(user.getCustomer().getZipCode());
+        response.setPhone(user.getCustomer().getPhone());
+        response.setAdditionalInfo(user.getCustomer().getAdditionalInfo());
         return response;
     }
 }

@@ -19,6 +19,7 @@ public class Product {
     private String title;
     private Integer price;
     private String description;
+    private Integer quantity;
 
     @ElementCollection(targetClass = Color.class, fetch = FetchType.EAGER)
     @CollectionTable(name = "product_colors", joinColumns = @JoinColumn(name = "product_id"))
