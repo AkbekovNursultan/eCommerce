@@ -4,11 +4,10 @@ import kg.alatoo.eCommerce.config.JwtService;
 import kg.alatoo.eCommerce.dto.user.UserLoginRequest;
 import kg.alatoo.eCommerce.dto.user.UserLoginResponse;
 import kg.alatoo.eCommerce.dto.user.UserRegisterRequest;
-import kg.alatoo.eCommerce.entity.Cart;
-import kg.alatoo.eCommerce.entity.Customer;
-import kg.alatoo.eCommerce.entity.User;
-import kg.alatoo.eCommerce.entity.Worker;
+import kg.alatoo.eCommerce.entity.*;
 import kg.alatoo.eCommerce.enums.Role;
+import kg.alatoo.eCommerce.enums.TokenType;
+import kg.alatoo.eCommerce.repository.TokenRepository;
 import kg.alatoo.eCommerce.repository.UserRepository;
 import kg.alatoo.eCommerce.service.AuthService;
 import lombok.AllArgsConstructor;
@@ -22,10 +21,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.webjars.NotFoundException;
 
-import java.util.Base64;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 @AllArgsConstructor
@@ -34,6 +30,7 @@ public class AuthServiceImpl implements AuthService {
     private PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private AuthenticationManager authenticationManager;
+    private final TokenRepository tokenRepository;
     @Override
     public void register(UserRegisterRequest userRegisterRequest) {
         if(userRepository.findByUsername(userRegisterRequest.getUsername()).isPresent())
@@ -75,7 +72,7 @@ public class AuthServiceImpl implements AuthService {
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(userLoginRequest.getUsername(),userLoginRequest.getPassword()));
 
         }catch (org.springframework.security.authentication.BadCredentialsException e){
-            throw new BadCredentialsException("user not found");
+            throw new BadCredentialsException("User not found");
         }
         return convertToResponse(user);
     }
@@ -100,10 +97,32 @@ public class AuthServiceImpl implements AuthService {
 
         Map<String, Object> extraClaims = new HashMap<>();
 
-        String token = jwtService.generateToken(extraClaims, user.get());
-        loginResponse.setToken(token);
-
+        String jwtToken = jwtService.generateToken(extraClaims, user.get());
+        loginResponse.setToken(jwtToken);
+        revokeAllUserTokens(user.get());
+        saveToken(user.get(), jwtToken);
         return loginResponse;
+    }
+
+    private void saveToken(User user, String jwtToken){
+        Token token = new Token();
+        token.setToken(jwtToken);
+        token.setUser(user);
+        token.setTokenType(TokenType.BEARER);
+        token.setExpired(false);
+        token.setRevoked(false);
+        tokenRepository.save(token);
+    }
+
+    private void revokeAllUserTokens(User user){
+        List<Token> validUserTokens = tokenRepository.findAllValidTokensByUser(user.getId());
+        if(validUserTokens.isEmpty())
+            return;
+        validUserTokens.forEach(t ->{
+            t.setExpired(true);
+            t.setRevoked(true);
+        });
+        tokenRepository.saveAll(validUserTokens);
     }
 
     private boolean containsRole(String role1) {
