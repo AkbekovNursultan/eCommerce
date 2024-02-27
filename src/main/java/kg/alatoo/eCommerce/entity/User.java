@@ -35,9 +35,6 @@ public class User implements UserDetails {
     @OneToOne(cascade = CascadeType.ALL)
     private Customer customer;
 
-    @OneToMany
-    private List<Product> productList;
-
     @OneToMany(mappedBy = "user")
     private List<Token> tokenList;
     @Override

@@ -10,7 +10,7 @@ import java.util.List;
 public interface ProductService {
     void addNewProduct(ProductRequest productRequest, String token);
 
-    void addNewCategory(CategoryRequest categoryRequest, String token);
+    void addNewCategory(String token, CategoryRequest request);
 
     void update(String token, Long productId, ProductRequest productRequest);
 

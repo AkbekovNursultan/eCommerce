@@ -4,7 +4,9 @@ import kg.alatoo.eCommerce.dto.category.CategoryRequest;
 import kg.alatoo.eCommerce.dto.product.ProductRequest;
 import kg.alatoo.eCommerce.dto.product.ProductResponse;
 import kg.alatoo.eCommerce.entity.*;
+import kg.alatoo.eCommerce.enums.Color;
 import kg.alatoo.eCommerce.enums.Role;
+import kg.alatoo.eCommerce.enums.Size;
 import kg.alatoo.eCommerce.exception.BadRequestException;
 import kg.alatoo.eCommerce.exception.BlockedException;
 import kg.alatoo.eCommerce.mapper.ProductMapper;
@@ -53,22 +55,22 @@ public class ProductServiceImpl implements ProductService {
         if(product.getQuantity() < 0)
             product.setQuantity(0);
         List<Product> products = new ArrayList<>();
-        if(category.get().getProducts().isEmpty())
+        if(!category.get().getProducts().isEmpty())
             products = category.get().getProducts();
+        product.setCategory(category.get());
         products.add(product);
-
         category.get().setProducts(products);
-        categoryRepository.save(category.get());
+        categoryRepository.saveAndFlush(category.get());
     }
 
     @Override
-    public void addNewCategory(CategoryRequest categoryRequest, String token) {
+    public void addNewCategory(String token, CategoryRequest categoryRequest) {
         User user = authService.getUserFromToken(token);
         if(!user.getRole().equals(Role.WORKER))
-            throw new BlockedException("You have no permission.");
+            throw new BadRequestException("You have no permission.");
         Category category = new Category();
-        if(categoryRepository.findByName(categoryRequest.getName()).isEmpty())
-            throw new BadCredentialsException("Already exists.");
+        if(!categoryRepository.findByName(categoryRequest.getName()).isEmpty())
+            throw new BadRequestException("Already exists.");
         category.setName(categoryRequest.getName());
         categoryRepository.save(category);
     }
@@ -77,12 +79,12 @@ public class ProductServiceImpl implements ProductService {
     public void update(String token, Long productId, ProductRequest request) {
         User user = authService.getUserFromToken(token);
         if(!user.getRole().equals(Role.WORKER))
-            throw new BlockedException("You have no permission.");
+            throw new BadRequestException("You have no permission.");
         Optional<Product> product = productRepository.findById(productId);
         if(product.isEmpty())
-            throw new NotFoundException("404");
+            throw new BadRequestException("Incorrect productId.");
         if(!product.get().getWorker().equals(user.getWorker()))
-            throw new BlockedException("You have no permission.");
+            throw new BadRequestException("You have no permission.");
         if(request.getCategory() != null) {
             Optional<Category> category = categoryRepository.findByName(request.getCategory());
             if (category.isEmpty())

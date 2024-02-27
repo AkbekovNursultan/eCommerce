@@ -1,5 +1,5 @@
 package kg.alatoo.eCommerce.enums;
 
 public enum Color {
-    red, orange, yellow, green, cyan, lightblue, blue, purple, pink , white, grey, brown, black
+    RED, ORANGE, YELLOW, GREEN, CYAN, LIGHTBLUE, BLUE, PURPLE, PINK, WHITE, GREY, BROWN, BLACK, LIME, SCARLET
 }

@@ -1,7 +1,8 @@
 package kg.alatoo.eCommerce.service.impl;
 
 import kg.alatoo.eCommerce.dto.user.ChangePasswordRequest;
-import kg.alatoo.eCommerce.dto.user.UserInfoResponse;
+import kg.alatoo.eCommerce.dto.user.CustomerInfoResponse;
+import kg.alatoo.eCommerce.dto.user.WorkerInfoResponse;
 import kg.alatoo.eCommerce.entity.Customer;
 import kg.alatoo.eCommerce.entity.User;
 import kg.alatoo.eCommerce.entity.Worker;
@@ -28,20 +29,27 @@ public class UserServiceImpl implements UserService {
     private PasswordEncoder encoder;
 
     @Override
-    public UserInfoResponse userInfo(String token) {
+    public CustomerInfoResponse customerInfo(String token) {
         User user = authService.getUserFromToken(token);
-        return userMapper.toDto(user);
+        Customer customer = user.getCustomer();
+        return userMapper.toDto(customer);
+    }
+    @Override
+    public WorkerInfoResponse workerInfo(String token) {
+        User user = authService.getUserFromToken(token);
+        Worker worker = user.getWorker();
+        return userMapper.toDto(worker);
     }
 
     @Override
-    public void update(String token, UserInfoResponse request) {
+    public void update(String token, CustomerInfoResponse request) {
         User user = authService.getUserFromToken(token);
         Optional<User> user1 = userRepository.findByUsername(request.getUsername());
         if(request.getUsername() != null){
             if(user1.isEmpty() || user1.get() == user)
                 user.setUsername(request.getUsername());
             else
-                throw new BadCredentialsException("This username already in use!");
+                throw new BadRequestException("This username already in use!");
         }
         if(user.getRole().equals(Role.CUSTOMER)) {
             Customer customer = user.getCustomer();
@@ -73,11 +81,17 @@ public class UserServiceImpl implements UserService {
     @Override
     public void changePassword(String token, ChangePasswordRequest request) {
         User user = authService.getUserFromToken(token);
-        if(!encoder.matches(user.getPassword(), request.getCurrentPassword()))
-            throw new BadRequestException(HttpStatus.BAD_REQUEST, "Incorrect password.");
-        if(request.getNewPassword().equals(user.getPassword()))
-            throw new BadCredentialsException("This password is already in use!.");
+        System.out.println(encoder.encode(request.getCurrentPassword()));
+
+        System.out.println(user.getPassword());
+        System.out.println();
+        if(!encoder.matches(request.getCurrentPassword(), (user.getPassword())))
+            throw new BadRequestException("Incorrect password.");
+        if(request.getNewPassword().equals(request.getCurrentPassword()))
+            throw new BadRequestException("This password is already in use!.");
         user.setPassword(encoder.encode(request.getNewPassword()));
         userRepository.save(user);
     }
+
+
 }

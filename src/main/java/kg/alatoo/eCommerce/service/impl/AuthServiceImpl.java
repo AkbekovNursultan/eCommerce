@@ -7,6 +7,7 @@ import kg.alatoo.eCommerce.dto.user.UserRegisterRequest;
 import kg.alatoo.eCommerce.entity.*;
 import kg.alatoo.eCommerce.enums.Role;
 import kg.alatoo.eCommerce.enums.TokenType;
+import kg.alatoo.eCommerce.exception.BadRequestException;
 import kg.alatoo.eCommerce.repository.TokenRepository;
 import kg.alatoo.eCommerce.repository.UserRepository;
 import kg.alatoo.eCommerce.service.AuthService;
@@ -20,6 +21,9 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.webjars.NotFoundException;
+import java.util.Base64;
+import java.util.HashMap;
+import java.util.Map;
 
 import java.util.*;
 
@@ -34,12 +38,12 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public void register(UserRegisterRequest userRegisterRequest) {
         if(userRepository.findByUsername(userRegisterRequest.getUsername()).isPresent())
-            throw new BadCredentialsException("Already exists");
+            throw new BadRequestException("Already exists");
         User user = new User();
         user.setUsername(userRegisterRequest.getUsername());
         user.setPassword(passwordEncoder.encode(userRegisterRequest.getPassword()));
         if(!containsRole(userRegisterRequest.getRole()))
-            throw new BadCredentialsException("Unknown role.");
+            throw new BadRequestException("Unknown role.");
         user.setRole(Role.valueOf(userRegisterRequest.getRole()));
         user.setEmail(userRegisterRequest.getEmail());
         if(user.getRole().equals(Role.CUSTOMER)){
@@ -54,7 +58,7 @@ public class AuthServiceImpl implements AuthService {
             customer.setUser(user);
             customer.setBalance(10000);
             Cart cart = new Cart();
-            cart.setCustomer(customer);
+            customer.setCart(cart);
             user.setCustomer(customer);
         } else if (user.getRole().equals(Role.WORKER)) {
             Worker worker = new Worker();
@@ -67,12 +71,12 @@ public class AuthServiceImpl implements AuthService {
     public UserLoginResponse login(UserLoginRequest userLoginRequest) {
         Optional<User> user = userRepository.findByUsername(userLoginRequest.getUsername());
         if(user.isEmpty())
-            throw new NotFoundException("404");
+            throw new BadRequestException("User not found.");
         try {
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(userLoginRequest.getUsername(),userLoginRequest.getPassword()));
 
         }catch (org.springframework.security.authentication.BadCredentialsException e){
-            throw new BadCredentialsException("User not found");
+            throw new BadRequestException("Invalid password.");
         }
         return convertToResponse(user);
     }

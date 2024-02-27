@@ -1,12 +1,15 @@
 package kg.alatoo.eCommerce.service;
 
 import kg.alatoo.eCommerce.dto.user.ChangePasswordRequest;
-import kg.alatoo.eCommerce.dto.user.UserInfoResponse;
+import kg.alatoo.eCommerce.dto.user.CustomerInfoResponse;
+import kg.alatoo.eCommerce.dto.user.WorkerInfoResponse;
 
 public interface UserService {
-    UserInfoResponse userInfo(String token);
+    CustomerInfoResponse customerInfo(String token);
 
-    void update(String token, UserInfoResponse request);
+    void update(String token, CustomerInfoResponse request);
 
     void changePassword(String token, ChangePasswordRequest request);
+
+    WorkerInfoResponse workerInfo(String token);
 }

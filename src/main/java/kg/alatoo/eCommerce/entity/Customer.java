@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.List;
+
 @Entity
 @Getter
 @Setter
@@ -22,4 +24,5 @@ public class Customer {
     private User user;
     @OneToOne(cascade = CascadeType.ALL)
     private Cart cart;
+
 }
