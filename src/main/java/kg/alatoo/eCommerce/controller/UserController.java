@@ -33,5 +33,11 @@ public class UserController {
         userService.changePassword(token, request);
         return "Password successfully changed.";
     }
+
+    @PostMapping("/add_favorite/{productId}")
+    public String addFavorite(@RequestHeader("Authorization") String token, @PathVariable Long productId){
+        userService.addFavorite(token, productId);
+        return "Done";
+    }
     //+
 }

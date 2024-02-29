@@ -1,6 +1,6 @@
 package kg.alatoo.eCommerce.service;
 
-import kg.alatoo.eCommerce.controller.RestockRequest;
+import kg.alatoo.eCommerce.dto.product.RestockRequest;
 import kg.alatoo.eCommerce.dto.category.CategoryRequest;
 import kg.alatoo.eCommerce.dto.product.ProductRequest;
 import kg.alatoo.eCommerce.dto.product.ProductResponse;
@@ -14,8 +14,6 @@ public interface ProductService {
     void addNewCategory(String token, CategoryRequest request);
 
     void update(String token, Long productId, ProductRequest productRequest);
-
-    void restock(String token, Long productId, RestockRequest request);
 
     List<ProductResponse> getAll();
 

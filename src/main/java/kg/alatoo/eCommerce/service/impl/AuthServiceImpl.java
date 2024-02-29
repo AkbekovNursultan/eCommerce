@@ -57,6 +57,8 @@ public class AuthServiceImpl implements AuthService {
             customer.setZipCode(userRegisterRequest.getZipCode());
             customer.setUser(user);
             customer.setBalance(10000);
+            List<Product> favoritesList = new ArrayList<>();
+            customer.setFavoritesList(favoritesList);
             Cart cart = new Cart();
             customer.setCart(cart);
             user.setCustomer(customer);

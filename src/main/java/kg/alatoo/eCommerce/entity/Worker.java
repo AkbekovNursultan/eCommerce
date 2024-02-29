@@ -15,6 +15,4 @@ public class Worker {
     private Long id;
     @OneToOne(mappedBy = "worker")
     private User user;
-    @OneToMany
-    private List<Product> addedProductList;
 }

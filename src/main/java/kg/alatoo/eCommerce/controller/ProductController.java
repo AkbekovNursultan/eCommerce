@@ -3,6 +3,7 @@ package kg.alatoo.eCommerce.controller;
 import kg.alatoo.eCommerce.dto.category.CategoryRequest;
 import kg.alatoo.eCommerce.dto.product.ProductRequest;
 import kg.alatoo.eCommerce.dto.product.ProductResponse;
+import kg.alatoo.eCommerce.dto.product.RestockRequest;
 import kg.alatoo.eCommerce.service.ProductService;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -33,11 +34,7 @@ public class ProductController {
         productService.update(token, productId, productRequest);
         return "Done";
     }
-    @PutMapping("/restock/{productId}")
-    public String restock(@RequestHeader("Authorization") String token, @PathVariable Long productId, @RequestBody RestockRequest request){
-        productService.restock(token, productId, request);
-        return "Done";
-    }
+
     @PostMapping("/buy/{productId}")
     public String buy(@RequestHeader("Authorization")String token, @PathVariable Long productId, @RequestParam Integer quantity){
         productService.buy(token, productId, quantity);

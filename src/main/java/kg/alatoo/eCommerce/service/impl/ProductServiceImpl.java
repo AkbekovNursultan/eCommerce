@@ -1,15 +1,11 @@
 package kg.alatoo.eCommerce.service.impl;
 
-import kg.alatoo.eCommerce.controller.RestockRequest;
 import kg.alatoo.eCommerce.dto.category.CategoryRequest;
 import kg.alatoo.eCommerce.dto.product.ProductRequest;
 import kg.alatoo.eCommerce.dto.product.ProductResponse;
 import kg.alatoo.eCommerce.entity.*;
-import kg.alatoo.eCommerce.enums.Color;
 import kg.alatoo.eCommerce.enums.Role;
-import kg.alatoo.eCommerce.enums.Size;
 import kg.alatoo.eCommerce.exception.BadRequestException;
-import kg.alatoo.eCommerce.exception.BlockedException;
 import kg.alatoo.eCommerce.mapper.ProductMapper;
 import kg.alatoo.eCommerce.repository.CartRepository;
 import kg.alatoo.eCommerce.repository.CategoryRepository;
@@ -18,7 +14,6 @@ import kg.alatoo.eCommerce.repository.UserRepository;
 import kg.alatoo.eCommerce.service.AuthService;
 import kg.alatoo.eCommerce.service.ProductService;
 import lombok.AllArgsConstructor;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.stereotype.Service;
 import org.webjars.NotFoundException;
 
@@ -52,11 +47,6 @@ public class ProductServiceImpl implements ProductService {
         product.setTags(productRequest.getTags());
         product.setSizes(productRequest.getSizes());
         product.setWorker(user.getWorker());
-        List<Product> productList = new ArrayList<>();
-        if(!user.getWorker().getAddedProductList().isEmpty())
-            productList = user.getWorker().getAddedProductList();
-        productList.add(product);
-        user.getWorker().setAddedProductList(productList);
         product.setQuantity(productRequest.getQuantity());
         if(product.getQuantity() < 0)
             product.setQuantity(0);
@@ -110,20 +100,12 @@ public class ProductServiceImpl implements ProductService {
             product.get().setColors(request.getColors());
         if(request.getTitle() != null)
             product.get().setTitle(request.getTitle());
+        if(request.getQuantity() < 0)
+            throw new BadRequestException("Invalid quantity definition.");
+        if(request.getQuantity() != null)
+            product.get().setQuantity(request.getQuantity());
         if(request.getDescription() != null)
             product.get().setDescription(request.getDescription());
-        productRepository.save(product.get());
-    }
-
-    @Override
-    public void restock(String token, Long productId, RestockRequest request) {
-        User user = authService.getUserFromToken(token);
-        if(!user.getRole().equals(Role.WORKER))
-            throw new BadRequestException("You have no permission");
-        Optional<Product> product = productRepository.findById(productId);
-        if(product.isEmpty())
-            throw new NotFoundException("Invalid ProductId");
-        product.get().setQuantity(product.get().getQuantity() + request.getQuantity());
         productRepository.save(product.get());
     }
 

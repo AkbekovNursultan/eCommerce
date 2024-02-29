@@ -47,4 +47,6 @@ public class Product {
     @ManyToOne
     private Cart cart;
 
+    @ManyToMany
+    private List<Customer> customers;
 }

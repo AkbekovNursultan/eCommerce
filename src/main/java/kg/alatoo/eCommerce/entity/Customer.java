@@ -24,5 +24,7 @@ public class Customer {
     private User user;
     @OneToOne(cascade = CascadeType.ALL)
     private Cart cart;
+    @ManyToMany
+    private List<Product> favoritesList;
 
 }
