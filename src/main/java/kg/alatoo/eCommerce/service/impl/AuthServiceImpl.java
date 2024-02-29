@@ -44,7 +44,7 @@ public class AuthServiceImpl implements AuthService {
         user.setPassword(passwordEncoder.encode(userRegisterRequest.getPassword()));
         if(!containsRole(userRegisterRequest.getRole()))
             throw new BadRequestException("Unknown role.");
-        user.setRole(Role.valueOf(userRegisterRequest.getRole()));
+        user.setRole(Role.valueOf(userRegisterRequest.getRole().toUpperCase()));
         user.setEmail(userRegisterRequest.getEmail());
         if(user.getRole().equals(Role.CUSTOMER)){
             Customer customer = new Customer();

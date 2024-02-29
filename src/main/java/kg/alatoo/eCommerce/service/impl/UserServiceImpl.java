@@ -74,17 +74,15 @@ public class UserServiceImpl implements UserService {
             userRepository.save(user);
         }
         else {
-            
+            if (request.getEmail() != null)
+                user.setEmail(request.getEmail());
+            userRepository.save(user);
         }
     }
 
     @Override
     public void changePassword(String token, ChangePasswordRequest request) {
         User user = authService.getUserFromToken(token);
-        System.out.println(encoder.encode(request.getCurrentPassword()));
-
-        System.out.println(user.getPassword());
-        System.out.println();
         if(!encoder.matches(request.getCurrentPassword(), (user.getPassword())))
             throw new BadRequestException("Incorrect password.");
         if(request.getNewPassword().equals(request.getCurrentPassword()))

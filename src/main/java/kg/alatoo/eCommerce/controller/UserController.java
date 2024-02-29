@@ -33,4 +33,5 @@ public class UserController {
         userService.changePassword(token, request);
         return "Password successfully changed.";
     }
+    //+
 }

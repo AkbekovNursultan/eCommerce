@@ -34,8 +34,8 @@ public class ProductController {
         return "Done";
     }
     @PutMapping("/restock/{productId}")
-    public String restock(@RequestHeader("Authorizatiion") String token, @PathVariable Long productId, @RequestParam Integer addedProducts){
-        productService.restock(token, productId, addedProducts);
+    public String restock(@RequestHeader("Authorization") String token, @PathVariable Long productId, @RequestBody RestockRequest request){
+        productService.restock(token, productId, request);
         return "Done";
     }
     @PostMapping("/buy/{productId}")
