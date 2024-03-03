@@ -1,7 +1,7 @@
 package kg.alatoo.eCommerce.dto.user;
 
 import jakarta.persistence.OneToMany;
-import kg.alatoo.eCommerce.entity.Product;
+import kg.alatoo.eCommerce.entity.CartElement;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -24,5 +24,5 @@ public class CustomerInfoResponse {
     private String additionalInfo;
 
     @OneToMany
-    private List<Product> productList;
+    private List<CartElement> productList;
 }

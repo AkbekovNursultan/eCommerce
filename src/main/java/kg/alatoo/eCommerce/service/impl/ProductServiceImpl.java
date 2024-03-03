@@ -100,10 +100,9 @@ public class ProductServiceImpl implements ProductService {
             product.get().setColors(request.getColors());
         if(request.getTitle() != null)
             product.get().setTitle(request.getTitle());
-        if(request.getQuantity() < 0)
+        if(request.getQuantity() == null || request.getQuantity() < 0)
             throw new BadRequestException("Invalid quantity definition.");
-        if(request.getQuantity() != null)
-            product.get().setQuantity(request.getQuantity());
+        product.get().setQuantity(request.getQuantity());
         if(request.getDescription() != null)
             product.get().setDescription(request.getDescription());
         productRepository.save(product.get());
@@ -114,28 +113,4 @@ public class ProductServiceImpl implements ProductService {
         List<Product> all = productRepository.findAll();
         return productMapper.toDtoS(all);
     }
-
-    @Override
-    public void buy(String token, Long productId, Integer quantity) {
-        User user = authService.getUserFromToken(token);
-        Customer customer = user.getCustomer();
-        if(!user.getRole().equals(Role.CUSTOMER))
-            throw new BadRequestException("You aren't allowed to do this.");
-        Optional<Product> product = productRepository.findById(productId);
-        if(product.isEmpty())
-            throw new NotFoundException("Product with Id:" +productId+ " doesn't exist.");
-        Cart cart = cartRepository.findByCustomerId(user.getCustomer().getId());
-        if(cart.getPrice() == null)
-            cart.setPrice(0);
-        if(customer.getBalance() < cart.getPrice() + product.get().getPrice())
-            throw new BadRequestException("You don't have enough money on your balance. \n(poor bastard)");
-        customer.setBalance(user.getCustomer().getBalance() - product.get().getPrice());
-        List<Product> list = cart.getProductList();
-        list.add(product.get());
-        cart.setProductList(list);
-        cartRepository.saveAndFlush(cart);
-        userRepository.saveAndFlush(user);
-    }
-
-
 }

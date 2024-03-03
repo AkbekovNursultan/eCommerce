@@ -11,7 +11,5 @@ public interface UserService {
 
     void changePassword(String token, ChangePasswordRequest request);
 
-    WorkerInfoResponse workerInfo(String token);
-
     void addFavorite(String token, Long productId);
 }

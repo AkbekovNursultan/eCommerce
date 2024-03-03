@@ -1,6 +1,5 @@
 package kg.alatoo.eCommerce.service;
 
-import kg.alatoo.eCommerce.dto.product.RestockRequest;
 import kg.alatoo.eCommerce.dto.category.CategoryRequest;
 import kg.alatoo.eCommerce.dto.product.ProductRequest;
 import kg.alatoo.eCommerce.dto.product.ProductResponse;
@@ -16,6 +15,4 @@ public interface ProductService {
     void update(String token, Long productId, ProductRequest productRequest);
 
     List<ProductResponse> getAll();
-
-    void buy(String token, Long productId, Integer quantity);
 }

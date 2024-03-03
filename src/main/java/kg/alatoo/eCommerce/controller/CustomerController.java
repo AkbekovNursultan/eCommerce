@@ -2,24 +2,19 @@ package kg.alatoo.eCommerce.controller;
 
 import kg.alatoo.eCommerce.dto.user.ChangePasswordRequest;
 import kg.alatoo.eCommerce.dto.user.CustomerInfoResponse;
-import kg.alatoo.eCommerce.dto.user.WorkerInfoResponse;
 import kg.alatoo.eCommerce.service.UserService;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 @AllArgsConstructor
 @RestController
-@RequestMapping("/user")
-public class UserController {
+@RequestMapping("/customer")
+public class CustomerController {
     private UserService userService;
 
-    @GetMapping("/customer/info")
+    @GetMapping("/info")
     public CustomerInfoResponse customerProfile(@RequestHeader("Authorization") String token){
         return userService.customerInfo(token);
-    }
-    @GetMapping("/worker/info")
-    public WorkerInfoResponse workerProfile(@RequestHeader("Authorization") String token){
-        return userService.workerInfo(token);
     }
 
     @PutMapping("/update")

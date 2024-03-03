@@ -17,7 +17,7 @@ public class UserMapperImpl implements UserMapper {
         response.setId(user.getId());
         response.setUsername(user.getUsername());
         response.setEmail(user.getEmail());
-        response.setProductList(customer.getCart().getProductList());
+        response.setProductList(customer.getCart().getProductsList());
         response.setFirstName(user.getFirstName());
         response.setLastName(user.getLastName());
         response.setCountry(customer.getCountry());
@@ -39,9 +39,6 @@ public class UserMapperImpl implements UserMapper {
         response.setEmail(user.getEmail());
         response.setFirstName(user.getFirstName());
         response.setLastName(user.getLastName());
-        response.setAddedProductsList(worker.getAddedProductList());
         return response;
     }
-    //Worker worker = user.getWorker();
-    //return userMapper.toDto(worker);
 }

@@ -15,6 +15,5 @@ public class WorkerInfoResponse {
 
     private String firstName;
     private String lastName;
-    private List<Product> addedProductsList;
 
 }
