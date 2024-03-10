@@ -1,5 +1,8 @@
 package kg.alatoo.eCommerce.service.impl;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import kg.alatoo.eCommerce.config.JwtService;
 import kg.alatoo.eCommerce.dto.user.UserLoginRequest;
 import kg.alatoo.eCommerce.dto.user.UserLoginResponse;
@@ -15,12 +18,18 @@ import lombok.AllArgsConstructor;
 import net.minidev.json.JSONObject;
 import net.minidev.json.parser.JSONParser;
 import net.minidev.json.parser.ParseException;
+import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Service;
 import org.webjars.NotFoundException;
+
+import java.io.IOException;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
@@ -98,13 +107,39 @@ public class AuthServiceImpl implements AuthService {
         return userRepository.findByUsername(String.valueOf(object.get("sub"))).orElseThrow(() -> new RuntimeException("user can be null"));
     }
 
+    @Override
+    public void refreshToken(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        final String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
+        final String refreshToken;
+        final String username;
+        if(authHeader == null || !authHeader.startsWith("Bearer ")){
+            return;
+        }
+        refreshToken = authHeader.substring(7);
+        username = jwtService.extractUsername(refreshToken);
+        if(username != null){
+            User user = this.userRepository.findByUsername(username).orElseThrow();
+            if(jwtService.isTokenValid(refreshToken, user)){
+                String accessToken = jwtService.generateToken(user);
+                revokeAllUserTokens(user);
+                saveToken(user, accessToken);
+                UserLoginResponse loginResponse = new UserLoginResponse();
+                loginResponse.setAccessToken(accessToken);
+                loginResponse.setRefreshToken(refreshToken);
+                new ObjectMapper().writeValue(response.getOutputStream(), loginResponse);
+            }
+        }
+    }
+
     private UserLoginResponse convertToResponse(Optional<User> user) {
         UserLoginResponse loginResponse = new UserLoginResponse();
 
         Map<String, Object> extraClaims = new HashMap<>();
 
         String jwtToken = jwtService.generateToken(extraClaims, user.get());
-        loginResponse.setToken(jwtToken);
+        String refreshToken = jwtService.generateRefreshToken(user.get());
+        loginResponse.setAccessToken(jwtToken);
+        loginResponse.setRefreshToken(refreshToken);
         revokeAllUserTokens(user.get());
         saveToken(user.get(), jwtToken);
         return loginResponse;
