@@ -39,9 +39,6 @@ public class Product {
     private String code;
 
     @ManyToOne
-    private Worker worker;
-
-    @ManyToOne
     private Category category;
 
     @ManyToOne

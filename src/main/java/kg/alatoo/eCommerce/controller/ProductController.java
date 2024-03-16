@@ -2,6 +2,7 @@ package kg.alatoo.eCommerce.controller;
 
 import kg.alatoo.eCommerce.dto.category.CategoryRequest;
 import kg.alatoo.eCommerce.dto.product.ProductRequest;
+import kg.alatoo.eCommerce.dto.product.ProductDetailsResponse;
 import kg.alatoo.eCommerce.dto.product.ProductResponse;
 import kg.alatoo.eCommerce.service.ProductService;
 import lombok.AllArgsConstructor;
@@ -14,6 +15,10 @@ import java.util.List;
 @RequestMapping("/product")
 public class ProductController {
     private final ProductService productService;
+    @GetMapping("/{id}")
+    public ProductDetailsResponse showById(@PathVariable Long id){
+        return productService.showById(id);
+    }
     @GetMapping("/all")
     public List<ProductResponse> responseList(){
         return productService.getAll();

@@ -10,24 +10,21 @@ import kg.alatoo.eCommerce.dto.user.UserRegisterRequest;
 import kg.alatoo.eCommerce.entity.*;
 import kg.alatoo.eCommerce.enums.Role;
 import kg.alatoo.eCommerce.enums.TokenType;
+import kg.alatoo.eCommerce.exception.BadCredentialsException;
 import kg.alatoo.eCommerce.exception.BadRequestException;
 import kg.alatoo.eCommerce.repository.TokenRepository;
 import kg.alatoo.eCommerce.repository.UserRepository;
 import kg.alatoo.eCommerce.service.AuthService;
 import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import net.minidev.json.JSONObject;
 import net.minidev.json.parser.JSONParser;
 import net.minidev.json.parser.ParseException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Service;
-import org.webjars.NotFoundException;
 
 import java.io.IOException;
 import java.util.Base64;
@@ -37,12 +34,12 @@ import java.util.Map;
 import java.util.*;
 
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService {
-    private UserRepository userRepository;
-    private PasswordEncoder passwordEncoder;
+    private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
-    private AuthenticationManager authenticationManager;
+    private final AuthenticationManager authenticationManager;
     private final TokenRepository tokenRepository;
     @Override
     public void register(UserRegisterRequest userRegisterRequest) {
@@ -54,7 +51,6 @@ public class AuthServiceImpl implements AuthService {
         if(!containsRole(userRegisterRequest.getRole()))
             throw new BadRequestException("Unknown role.");
         user.setRole(Role.valueOf(userRegisterRequest.getRole().toUpperCase()));
-        user.setEmail(userRegisterRequest.getEmail());
         if(user.getRole().equals(Role.CUSTOMER)){
             Customer customer = new Customer();
             customer.setCountry(userRegisterRequest.getCountry());
@@ -76,6 +72,7 @@ public class AuthServiceImpl implements AuthService {
             worker.setUser(user);
             user.setWorker(worker);
         }
+        user.setEmailVerified(false);
         userRepository.save(user);
     }
     @Override
@@ -96,37 +93,39 @@ public class AuthServiceImpl implements AuthService {
 
         String[] chunks = token.substring(7).split("\\.");
         Base64.Decoder decoder = Base64.getUrlDecoder();
-
+        if (chunks.length != 3)
+            throw new BadCredentialsException("Wrong token!");
         JSONParser jsonParser = new JSONParser();
         JSONObject object = null;
         try {
-            object = (JSONObject) jsonParser.parse(decoder.decode(chunks[1]));
+            byte[] decodedBytes = decoder.decode(chunks[1]);
+            object = (JSONObject) jsonParser.parse(decodedBytes);
         } catch (ParseException e) {
-            throw new RuntimeException(e);
+            throw new BadCredentialsException("Wrong token!!");
         }
-        return userRepository.findByUsername(String.valueOf(object.get("sub"))).orElseThrow(() -> new RuntimeException("user can be null"));
+        return userRepository.findByUsername(String.valueOf(object.get("sub"))).orElseThrow(() -> new BadCredentialsException("Wrong token!!!"));
     }
 
     @Override
     public void refreshToken(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        final String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
+        final String authHeader = request.getHeader("Authorization");
         final String refreshToken;
         final String username;
         if(authHeader == null || !authHeader.startsWith("Bearer ")){
-            return;
+            //return;
         }
         refreshToken = authHeader.substring(7);
         username = jwtService.extractUsername(refreshToken);
         if(username != null){
-            User user = this.userRepository.findByUsername(username).orElseThrow();
+            var user = this.userRepository.findByUsername(username).orElseThrow();
             if(jwtService.isTokenValid(refreshToken, user)){
-                String accessToken = jwtService.generateToken(user);
+                var accessToken = jwtService.generateToken(user);
+                UserLoginResponse authResponse = new UserLoginResponse();
+                authResponse.setAccessToken(accessToken);
+                authResponse.setRefreshToken(refreshToken);
                 revokeAllUserTokens(user);
                 saveToken(user, accessToken);
-                UserLoginResponse loginResponse = new UserLoginResponse();
-                loginResponse.setAccessToken(accessToken);
-                loginResponse.setRefreshToken(refreshToken);
-                new ObjectMapper().writeValue(response.getOutputStream(), loginResponse);
+                new ObjectMapper().writeValue(response.getOutputStream(), authResponse);
             }
         }
     }
