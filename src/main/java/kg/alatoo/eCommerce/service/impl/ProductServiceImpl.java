@@ -2,10 +2,12 @@ package kg.alatoo.eCommerce.service.impl;
 
 import kg.alatoo.eCommerce.dto.category.CategoryRequest;
 import kg.alatoo.eCommerce.dto.product.ProductRequest;
+import kg.alatoo.eCommerce.dto.product.ProductDetailsResponse;
 import kg.alatoo.eCommerce.dto.product.ProductResponse;
 import kg.alatoo.eCommerce.entity.*;
 import kg.alatoo.eCommerce.enums.Role;
 import kg.alatoo.eCommerce.exception.BadRequestException;
+import kg.alatoo.eCommerce.exception.NotFoundException;
 import kg.alatoo.eCommerce.mapper.ProductMapper;
 import kg.alatoo.eCommerce.repository.CartRepository;
 import kg.alatoo.eCommerce.repository.CategoryRepository;
@@ -14,8 +16,8 @@ import kg.alatoo.eCommerce.repository.UserRepository;
 import kg.alatoo.eCommerce.service.AuthService;
 import kg.alatoo.eCommerce.service.ProductService;
 import lombok.AllArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.webjars.NotFoundException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -46,7 +48,6 @@ public class ProductServiceImpl implements ProductService {
         product.setColors(productRequest.getColors());
         product.setTags(productRequest.getTags());
         product.setSizes(productRequest.getSizes());
-        product.setWorker(user.getWorker());
         product.setQuantity(productRequest.getQuantity());
         if(product.getQuantity() < 0)
             product.setQuantity(0);
@@ -79,8 +80,6 @@ public class ProductServiceImpl implements ProductService {
         Optional<Product> product = productRepository.findById(productId);
         if(product.isEmpty())
             throw new BadRequestException("Incorrect productId.");
-        if(!product.get().getWorker().equals(user.getWorker()))
-            throw new BadRequestException("You have no permission.");
         if(request.getCategory() != null) {
             Optional<Category> category = categoryRepository.findByName(request.getCategory());
             if (category.isEmpty())
@@ -112,5 +111,14 @@ public class ProductServiceImpl implements ProductService {
     public List<ProductResponse> getAll() {
         List<Product> all = productRepository.findAll();
         return productMapper.toDtoS(all);
+    }
+
+    @Override
+    public ProductDetailsResponse showById(Long id) {
+        Optional<Product> product = productRepository.findById(id);
+        if (product.isEmpty())
+            throw new NotFoundException("Product with id: "+id+" - doesn't found!", HttpStatus.BAD_REQUEST);
+        return productMapper.toDetailDto(product.get());
+
     }
 }

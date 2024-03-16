@@ -13,7 +13,7 @@ public class CustomerInfoResponse {
     private Long id;
     private String username;
     private String email;
-
+    private Integer balance;
     private String firstName;
     private String lastName;
     private String country;
@@ -23,6 +23,4 @@ public class CustomerInfoResponse {
     private String phone;
     private String additionalInfo;
 
-    @OneToMany
-    private List<CartElement> productList;
 }

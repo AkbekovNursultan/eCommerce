@@ -27,7 +27,9 @@ public class User implements UserDetails {
     private String firstName;
     private String lastName;
 
-
+    private String verificationCode;
+    private Boolean emailVerified;
+    private String recoveryCode;
 
     @OneToOne(cascade = CascadeType.ALL)
     private Worker worker;

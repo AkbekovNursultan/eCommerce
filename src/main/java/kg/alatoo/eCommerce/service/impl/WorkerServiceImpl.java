@@ -6,7 +6,7 @@ import kg.alatoo.eCommerce.entity.User;
 import kg.alatoo.eCommerce.entity.Worker;
 import kg.alatoo.eCommerce.enums.Role;
 import kg.alatoo.eCommerce.exception.BadRequestException;
-import kg.alatoo.eCommerce.mapper.UserMapper;
+import kg.alatoo.eCommerce.mapper.CustomerMapper;
 import kg.alatoo.eCommerce.repository.UserRepository;
 import kg.alatoo.eCommerce.service.AuthService;
 import kg.alatoo.eCommerce.service.WorkerService;
@@ -20,7 +20,7 @@ import java.util.Optional;
 @AllArgsConstructor
 public class WorkerServiceImpl implements WorkerService{
     private AuthService authService;
-    private UserMapper userMapper;
+    private CustomerMapper customerMapper;
     private PasswordEncoder encoder;
     private UserRepository userRepository;
 
@@ -30,7 +30,7 @@ public class WorkerServiceImpl implements WorkerService{
         if(!user.getRole().equals(Role.WORKER))
             throw new BadRequestException("You can't do this.");
         Worker worker = user.getWorker();
-        return userMapper.toDto(worker);
+        return customerMapper.toDtoWorker(worker);
     }
 
     @Override
@@ -62,8 +62,6 @@ public class WorkerServiceImpl implements WorkerService{
             user.setFirstName(request.getFirstName());
         if (request.getLastName() != null)
             user.setLastName(request.getLastName());
-        if (request.getEmail() != null)
-            user.setEmail(request.getEmail());
         userRepository.save(user);
     }
 }

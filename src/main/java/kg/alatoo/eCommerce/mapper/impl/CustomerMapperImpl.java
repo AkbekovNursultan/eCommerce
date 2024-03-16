@@ -5,11 +5,11 @@ import kg.alatoo.eCommerce.dto.user.WorkerInfoResponse;
 import kg.alatoo.eCommerce.entity.Customer;
 import kg.alatoo.eCommerce.entity.User;
 import kg.alatoo.eCommerce.entity.Worker;
-import kg.alatoo.eCommerce.mapper.UserMapper;
+import kg.alatoo.eCommerce.mapper.CustomerMapper;
 import org.springframework.stereotype.Component;
 
 @Component
-public class UserMapperImpl implements UserMapper {
+public class CustomerMapperImpl implements CustomerMapper {
     @Override
     public CustomerInfoResponse toDto(Customer customer) {
         CustomerInfoResponse response = new CustomerInfoResponse();
@@ -17,7 +17,6 @@ public class UserMapperImpl implements UserMapper {
         response.setId(user.getId());
         response.setUsername(user.getUsername());
         response.setEmail(user.getEmail());
-        response.setProductList(customer.getCart().getProductsList());
         response.setFirstName(user.getFirstName());
         response.setLastName(user.getLastName());
         response.setCountry(customer.getCountry());
@@ -26,12 +25,13 @@ public class UserMapperImpl implements UserMapper {
         response.setZipCode(customer.getZipCode());
         response.setPhone(customer.getPhone());
         response.setAdditionalInfo(customer.getAdditionalInfo());
+        response.setBalance(customer.getBalance());
 
         return response;
     }
 
     @Override
-    public WorkerInfoResponse toDto(Worker worker) {
+    public WorkerInfoResponse toDtoWorker(Worker worker) {
         WorkerInfoResponse response = new WorkerInfoResponse();
         User user = worker.getUser();
         response.setId(user.getId());
