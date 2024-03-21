@@ -5,19 +5,17 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.util.List;
-
 @Entity
 @Getter
 @Setter
-public class Cart {
+public class OrderHistory {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private Integer price;
-    @OneToOne(mappedBy = "cart")
-    private Customer customer;
-    @OneToMany(cascade = CascadeType.ALL)
-    private List<CartElement> productsList;
+
     @OneToOne(cascade = CascadeType.ALL)
-    private OrderHistory orderHistory;
+    private Cart cart;
+
+    @OneToMany(cascade = CascadeType.ALL)
+    private List<Purchase> purchases;
 }

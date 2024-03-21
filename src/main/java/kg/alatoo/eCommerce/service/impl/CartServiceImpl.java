@@ -1,20 +1,21 @@
 package kg.alatoo.eCommerce.service.impl;
 
 import kg.alatoo.eCommerce.dto.cart.CartInfoResponse;
+import kg.alatoo.eCommerce.dto.cart.OrderHistoryResponse;
 import kg.alatoo.eCommerce.entity.*;
 import kg.alatoo.eCommerce.enums.Role;
 import kg.alatoo.eCommerce.exception.BadRequestException;
 import kg.alatoo.eCommerce.mapper.CartMapper;
-import kg.alatoo.eCommerce.repository.CartElementRepository;
-import kg.alatoo.eCommerce.repository.CartRepository;
-import kg.alatoo.eCommerce.repository.ProductRepository;
-import kg.alatoo.eCommerce.repository.UserRepository;
+import kg.alatoo.eCommerce.mapper.OrderHistoryMapper;
+import kg.alatoo.eCommerce.repository.*;
 import kg.alatoo.eCommerce.service.AuthService;
 import kg.alatoo.eCommerce.service.CartService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.webjars.NotFoundException;
 
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -27,6 +28,9 @@ public class CartServiceImpl implements CartService {
     private UserRepository userRepository;
     private CartElementRepository cartElementRepository;
     private CartMapper cartMapper;
+    private PurchaseRepository purchaseRepository;
+    private OrderHistoryRepository orderHistoryRepository;
+    private OrderHistoryMapper orderHistoryMapper;
 
     @Override
     public CartInfoResponse info(String token) {
@@ -38,9 +42,42 @@ public class CartServiceImpl implements CartService {
         return cartMapper.toDto(customer.getCart());
     }
 
+    @Override
+    public void buy(String token) {
+        User user = authService.getUserFromToken(token);
+        if(!user.getRole().equals(Role.CUSTOMER))
+            throw new BadRequestException("You aren't allowed to do this.");
+        Date date = new Date();
+        Cart cart = user.getCustomer().getCart();
+        Purchase purchase = new Purchase();
+        purchase.setPrice(cart.getPrice());
+        purchase.setDate(date.toString());
+
+        OrderHistory orderHistory = cart.getOrderHistory();
+        List<Purchase> purchases = orderHistory.getPurchases();
+        purchase.setOrderHistory(orderHistory);
+        purchases.add(purchase);
+        List<CartElement> newList = new ArrayList<>();
+        cart.setPrice(0);
+        cart.setProductsList(newList);
+        orderHistoryRepository.saveAndFlush(orderHistory);
+        userRepository.saveAndFlush(user);
+
+    }
 
     @Override
-    public void buy(String token, Long productId, Integer quantity) {
+    public OrderHistoryResponse history(String token) {
+        User user = authService.getUserFromToken(token);
+        if(!user.getRole().equals(Role.CUSTOMER))
+            throw new BadRequestException("You can't do this.");
+        Customer customer = user.getCustomer();
+
+        return orderHistoryMapper.toDto(customer.getCart());
+    }
+
+
+    @Override
+    public void add(String token, Long productId, Integer quantity) {
         User user = authService.getUserFromToken(token);
         if(!user.getRole().equals(Role.CUSTOMER))
             throw new BadRequestException("You aren't allowed to do this.");

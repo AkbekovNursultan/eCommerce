@@ -16,5 +16,7 @@ public class CartElement {
     private Integer price;
     private Integer total;
     @ManyToOne(cascade = CascadeType.ALL)
+    private Purchase purchase;
+    @ManyToOne(cascade = CascadeType.ALL)
     private Cart cart;
 }

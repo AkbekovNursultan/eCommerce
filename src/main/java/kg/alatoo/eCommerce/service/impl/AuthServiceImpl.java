@@ -65,7 +65,11 @@ public class AuthServiceImpl implements AuthService {
             List<Product> favoritesList = new ArrayList<>();
             customer.setFavoritesList(favoritesList);
             Cart cart = new Cart();
+            OrderHistory orderHistory = new OrderHistory();
+            cart.setOrderHistory(orderHistory);
+            orderHistory.setCart(cart);
             customer.setCart(cart);
+
             user.setCustomer(customer);
         } else if (user.getRole().equals(Role.WORKER)) {
             Worker worker = new Worker();
