@@ -46,4 +46,7 @@ public class Product {
 
     @ManyToMany
     private List<Customer> customers;
+
+    @OneToOne(cascade = CascadeType.ALL)
+    private Image image;
 }
