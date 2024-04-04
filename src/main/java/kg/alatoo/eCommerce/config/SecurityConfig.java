@@ -27,7 +27,7 @@ public class SecurityConfig {
                 .sessionManagement(sessionManagement -> sessionManagement
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                                .requestMatchers("/auth/**", "/email/recovery","/email/password_recovery").permitAll()
+                                .requestMatchers("/auth/**", "/email/recovery","/email/password_recovery", "/image/download/**").permitAll()
                                 .anyRequest().authenticated()
                         )
                 .authenticationProvider(authenticationProvider)

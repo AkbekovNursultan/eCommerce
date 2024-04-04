@@ -4,5 +4,5 @@ import kg.alatoo.eCommerce.dto.image.ImageResponse;
 import kg.alatoo.eCommerce.entity.Image;
 
 public interface ImageMapper {
-    public ImageResponse toDetailDto(Image image);
+    ImageResponse toDetailDto(Image image);
 }
